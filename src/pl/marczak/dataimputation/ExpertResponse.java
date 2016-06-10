@@ -29,7 +29,7 @@ public class ExpertResponse {
      */
     public float selfEsteemIndex;
     /**
-     * Array of given responses (for Delphi foresees: 4 values)
+     * Array of given responses (for Delphic foresees: 4 values)
      * Missing values are marked by NaN (for example, char 'X")
      */
     public String[] expertResponses;
@@ -49,11 +49,21 @@ public class ExpertResponse {
         numericResponses = r.numericResponses;
     }
 
+    public ExpertResponse(ExpertResponse r, float[] newArr) {
+        surveyId = r.surveyId;
+        responseId = r.responseId;
+        expertId = r.expertId;
+        competentIndex = r.competentIndex;
+        selfEsteemIndex = r.selfEsteemIndex;
+        expertResponses = r.expertResponses;
+        numericResponses = newArr;
+    }
+
 
     public String valuesOnly() {
         return responseId + ", "
                 + expertId + ", \t"
-                + Arrays.toString(expertResponses).replace("[", "").replace("]", "");
+                + Arrays.toString(numericResponses).replace("[", "").replace("]", "") + ",";
 
     }
 
@@ -63,13 +73,19 @@ public class ExpertResponse {
                 + expertId + ", "
                 + competentIndex + ", "
                 + selfEsteemIndex + ", "
-                + Arrays.toString(expertResponses).replace("[", "").replace("]", "");
+                + Arrays.toString(numericResponses).replace("[", "").replace("]", "") + ",";
+    }
+
+    public ExpertResponse with(float singleValue, int columnIndex) {
+        numericResponses[columnIndex] = singleValue;
+        Utils.log("update here");
+        return this;
     }
 
 
-//    public ExpertResponse clone()  {
+//    public _ExpertResponse clone()  {
 //
-//        ExpertResponse response =new ExpertResponse();
+//        _ExpertResponse response =new _ExpertResponse();
 //        response.surveyId = surveyId;
 //        response.responseId = responseId;
 //        response.expertId = expertId;

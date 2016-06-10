@@ -1,5 +1,6 @@
 package pl.marczak.dataimputation;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,5 +32,11 @@ public class DataImputationHelper {
             out[j] = j + 1;
         }
         return out;
+    } public static float[] wrapToArray(List<Float> notMissed1) {
+        float[] a = new float[notMissed1.size()];
+        for (int j = 0; j < notMissed1.size(); j++) {
+            a[j] = notMissed1.get(j);
+        }
+        return a;
     }
 }
