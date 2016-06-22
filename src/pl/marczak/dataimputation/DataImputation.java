@@ -9,6 +9,8 @@ import rx.schedulers.Schedulers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -23,19 +25,80 @@ import static pl.marczak.dataimputation.DataImputationHelper.wrapToArray;
  * @since 09.06.2016.
  */
 public class DataImputation {
-
-    public static void main(String[] args) {
-
-        new DataImputation().run1();
+    public interface Callable<T> {
+        void call(List<T> data);
     }
 
-    private void run1() {
+    public static void main(String[] args) {
+        DataImputation dataImputation = new DataImputation();
+        dataImputation.anotherDataImputation();
+        dataImputation.runDataImputation(new Callable<ExpertResponse>() {
+            @Override
+            public void call(List<ExpertResponse> data) {
+                Utils.log("Callback:");
+                List<List<Float>> theSameExpertResponses = new ArrayList<>();
 
+                List<Float> uniqueExperts = new ArrayList<>();
+                for (ExpertResponse expertResponse : data) {
+                    if (!uniqueExperts.contains(expertResponse.expertId))
+                        uniqueExperts.add(expertResponse.expertId);
+                }
+                for (Float f : uniqueExperts)
+                    theSameExpertResponses.add(new ArrayList<Float>());
+                for (Float f : uniqueExperts) {
+                    for (ExpertResponse expertResponse : data) {
+                        if (isTheSame(f, expertResponse.expertId)) {
+                            theSameExpertResponses.get(f.intValue()).add(expertResponse.expertId);
+                            for (float value : expertResponse.numericResponses)
+                                theSameExpertResponses.get(f.intValue()).add(value);
+                        }
+                    }
+                }
+
+                for (List<Float> list : theSameExpertResponses) {
+                    StringBuilder sb = new StringBuilder();
+                    Utils.log("Next expert: " + list.get(0));
+                    sb.append("[");
+                    for (float f : list) {
+                        sb.append(f).append(",");
+                    }
+                    sb.append("]");
+                    Utils.log(sb.toString());
+                }
+            }
+        });
+    }
+
+    private void printExperts() {
         appendExpertsResponses("ankiet5K.csv", expertResponses);
         Utils.log("Expert responses size: " + expertResponses.size());
 //        printExpertsWithNoMiss();
 
         final List<Float> missingExperts = expertsWithMissingValues();
+//        for (Float f : missingExperts) {
+        Utils.log("Expert id" + 128);
+        List<ExpertResponse> res = CSVCreator.getExpertResponses(128f, expertResponses);
+        Utils.log("size = " + res.size());
+        for (ExpertResponse r : res) {
+            Utils.log("->" + r.valuesOnly());
+        }
+        Utils.log("\n\n");
+//        }
+    }
+
+    private void anotherDataImputation() {
+        appendExpertsResponses("ankiety13.csv", expertResponses);
+        Utils.log("Expert responses size: " + expertResponses.size());
+
+    }
+
+    private void runDataImputation(final Callable<ExpertResponse> callback) {
+//        appendExpertsResponses("ankiet5K.csv", expertResponses);
+//        Utils.log("Expert responses size: " + expertResponses.size());
+//        printExpertsWithNoMiss();
+
+        final List<Float> missingExperts = expertsWithMissingValues();
+
 //        runWithSingleExpert(128);
         Observable.from(missingExperts)
                 .subscribeOn(Schedulers.trampoline())
@@ -65,12 +128,55 @@ public class DataImputation {
                     }
 
                     @Override
-                    public void onNext(List<ExpertResponse> expertResponses) {
+                    public void onNext(final List<ExpertResponse> expertResponses) {
+
+
+                        Set<Float> uniqueSurveys = new HashSet<>();
+
                         for (ExpertResponse e : expertResponses) {
+                            uniqueSurveys.add(e.responseId);
                             if (!containsMissingValues2(e)) {
                                 Utils.log(e.toString());
                             }
                         }
+                        callback.call(expertResponses);
+                        List<Float> surveys = new ArrayList<>();
+                        surveys.addAll(uniqueSurveys);
+                        Collections.sort(surveys);
+
+                        List<List<ExpertResponse>> separated = new ArrayList<>();
+                        for (float f : surveys) separated.add(new ArrayList<ExpertResponse>());
+                        for (ExpertResponse e : expertResponses) {
+                            for (int k = 0; k < surveys.size(); k++) {
+                                if (isTheSame(surveys.get(k), e.responseId)) {
+                                    separated.get(k).add(e);
+                                }
+                            }
+                        }
+//                        Observable.from(separated).map(new Func1<List<ExpertResponse>, Boolean>() {
+//                            @Override
+//                            public Boolean call(List<ExpertResponse> expertResponses) {
+//                                return saveResponses(expertResponses);
+//                            }
+//                        }).subscribeOn(Schedulers.trampoline()).subscribe(new Subscriber<Boolean>() {
+//                            @Override
+//                            public void onCompleted() {
+//                                Utils.log("onCompleted");
+//                                callback.call(expertResponses);
+//                            }
+//
+//                            @Override
+//                            public void onError(Throwable throwable) {
+//                                Utils.err(throwable.getMessage());
+//                                throwable.printStackTrace();
+//                            }
+//
+//                            @Override
+//                            public void onNext(Boolean aBoolean) {
+//                                Utils.log(aBoolean.toString());
+//                            }
+//                        });
+
                     }
                 });
             }
@@ -93,6 +199,23 @@ public class DataImputation {
         });
 
 
+    }
+
+    private Boolean saveResponses(List<ExpertResponse> expertResponses) {
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter("delficSurvey_" + String.valueOf(expertResponses.get(0).responseId).replace(".", "_") + ".csv", "UTF-8");
+        } catch (FileNotFoundException | UnsupportedEncodingException x) {
+
+        } finally {
+            if (writer != null) {
+                for (ExpertResponse response : expertResponses) {
+                    writer.println(response.toString());
+                }
+                writer.close();
+            }
+        }
+        return true;
     }
 
     private Observable<List<ExpertResponse>> avoidMissingValues() {
@@ -138,7 +261,7 @@ public class DataImputation {
 
         //here we have complete vector for calculating regression
         //additional cases: various number of points
-        float[] X_args =  createArgumentVector(Y_args.length);
+        float[] X_args = createArgumentVector(Y_args.length);
         Arrays.sort(Y_args);
         PolynomialRegression regression = PolynomialRegression.create(X_args, Y_args, 2);
 
@@ -197,7 +320,7 @@ public class DataImputation {
     private List<Float> expertsWithMissingValues() {
         Set<Float> ids = new HashSet<>();
         for (ExpertResponse response : expertResponses) {
-            if (containsMissingValues(response, "-1")) {
+            if (containsMissingValues(response, "X")) {
                 ids.add(response.expertId);
             }
         }

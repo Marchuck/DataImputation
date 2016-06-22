@@ -33,17 +33,18 @@ public class CSVCreator {
         DataImputationHelper helper = new DataImputationHelper();
         String[] filenames = new String[]{
                 "dzial_1_1.csv",
-                "dzial_2_1_.csv",
-                "dzial_2_2_.csv",
-                "dzial_2_3_.csv",
-                "dzial_2_8_.csv",
-                "dzial_2_9_.csv",
-                "dzial_2_10_.csv",
-                "dzial_2_11_.csv",
-                "dzial_2_12_.csv",
-                "dzial_2_13_.csv",
-                "dzial_2_14_.csv",
+//                "dzial_2_1_.csv",
+//                "dzial_2_2_.csv",
+//                "dzial_2_3_.csv",
+//                "dzial_2_8_.csv",
+//                "dzial_2_9_.csv",
+//                "dzial_2_10_.csv",
+//                "dzial_2_11_.csv",
+//                "dzial_2_12_.csv",
+//                "dzial_2_13_.csv",
+//                "dzial_2_14_.csv",
         };
+
         for (String filename : filenames) {
             Utils.log("Processing  " + filename);
             appendExpertsResponses(filename, expertResponses);
@@ -149,7 +150,10 @@ public class CSVCreator {
                 Utils.log("\n\n");
 //                printExpertAllResponses(expertWithMissingValues, expertResponses);
                 List<ExpertResponse> responses = getExpertResponses(expertWithMissingValues, expertResponses);
-
+                Utils.log("Expert id: " + expertWithMissingValues.expertId);
+                for (ExpertResponse response : responses) {
+                    Utils.log("next: " + response.valuesOnly());
+                }
                 for (int l = 0; l < 4; l++) {
                     boolean allMissing = true;
                     for (ExpertResponse response : responses) {
@@ -161,15 +165,18 @@ public class CSVCreator {
                 }
             }
         }
+
+
         Utils.log("Expert responses size: " + expertResponses.size());
         /***
          * SAVE EXPERT FORESEES HERE
          */
+
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter("ankiet5K.csv", "UTF-8");
+            writer = new PrintWriter("ankiety13.csv", "UTF-8");
         } catch (FileNotFoundException | UnsupportedEncodingException x) {
-
+            throw new NullPointerException("Unable to write nullable file!");
         } finally {
             if (writer != null) {
                 for (ExpertResponse response : expertResponses) {
@@ -213,6 +220,17 @@ public class CSVCreator {
         return outputResponses;
     }
 
+    public static List<ExpertResponse> getExpertResponses(float expertResponseId, List<ExpertResponse> expertResponses) {
+        List<ExpertResponse> outputResponses = new ArrayList<>();
+
+        for (ExpertResponse expertResponse : expertResponses) {
+            if (isTheSame(expertResponse.expertId, expertResponseId)) {
+                outputResponses.add(expertResponse);
+            }
+        }
+        return outputResponses;
+    }
+
     private void printExpertAllResponses(ExpertResponse expertResponse, List<ExpertResponse> expertResponses) {
 
         Utils.log("***Printing expert [" + expertResponse.expertId + "] responses***");
@@ -227,9 +245,10 @@ public class CSVCreator {
     }
 
     public static boolean containsMissingValues(ExpertResponse expertResponse) {
-        return containsMissingValues(expertResponse,MISSING_VALUE);
+        return containsMissingValues(expertResponse, MISSING_VALUE);
     }
-    public static boolean containsMissingValues(ExpertResponse expertResponse,String value) {
+
+    public static boolean containsMissingValues(ExpertResponse expertResponse, String value) {
         for (String s : expertResponse.expertResponses) {
             if (s.equals(value)) return true;
         }

@@ -73,13 +73,17 @@ public class ExpertResponse {
                 + expertId + ", "
                 + competentIndex + ", "
                 + selfEsteemIndex + ", "
-                + Arrays.toString(numericResponses).replace("[", "").replace("]", "") + ",";
+                + Arrays.toString(expertResponses).replace("[", "").replace("]", "") + ",";
     }
 
     public ExpertResponse with(float singleValue, int columnIndex) {
         numericResponses[columnIndex] = singleValue;
         Utils.log("update here");
         return this;
+    }
+
+    public String all() {
+        return expertId + ", " + Arrays.toString(numericResponses) + ", " + Arrays.toString(expertResponses);
     }
 
 
