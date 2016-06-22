@@ -3,8 +3,9 @@ package pl.marczak.dataimputation;
 /**
  * @author Lukasz
  * @since 09.06.2016.
+ *
+ * Interpolacja do paraboli na podstawie odpowiedzi ekspertów
  */
-
 import Jama.Matrix;
 import Jama.QRDecomposition;
 

@@ -5,6 +5,8 @@ import java.util.Arrays;
 /**
  * @author Lukasz
  * @since 08.06.2016.
+ * Structure which represents single expert response for selected survey
+ * ({@link ExpertResponse#surveyId})
  */
 public class ExpertResponse {
     /**
@@ -20,19 +22,22 @@ public class ExpertResponse {
     public float expertId;
     /**
      * Coefficient how an expert is competent
-     * Value from range [0, 1)
+     * Value from range [0, 1]
      */
     public float competentIndex;
     /**
      * Coefficient how an expert estimates the foresee himself
-     * Value from range [0, 1)
+     * Value from range [0, 1]
      */
     public float selfEsteemIndex;
     /**
      * Array of given responses (for Delphic foresees: 4 values)
-     * Missing values are marked by NaN (for example, char 'X")
+     * Missing values are marked by 'X' character or other nonNumeric value
      */
     public String[] expertResponses;
+    /**
+     * numeric representation of each responses, missing values are set to negative-1 value
+     */
     public float[] numericResponses;
 
 
@@ -85,18 +90,4 @@ public class ExpertResponse {
     public String all() {
         return expertId + ", " + Arrays.toString(numericResponses) + ", " + Arrays.toString(expertResponses);
     }
-
-
-//    public _ExpertResponse clone()  {
-//
-//        _ExpertResponse response =new _ExpertResponse();
-//        response.surveyId = surveyId;
-//        response.responseId = responseId;
-//        response.expertId = expertId;
-//        response.competentIndex = competentIndex;
-//        response.selfEsteemIndex = selfEsteemIndex;
-//        response.expertResponses = expertResponses;
-//        response.numericResponses = numericResponses;
-//        return response;
-//    }
 }

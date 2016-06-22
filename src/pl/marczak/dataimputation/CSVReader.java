@@ -12,39 +12,41 @@ import java.util.regex.Pattern;
 /**
  * @author Lukasz
  * @since 21.05.2016.
+ *
+ * Wczytuje pliki CSV i zapisuje w takiej postaci,
+ * by osobne ankiety były zapisywane do osobnych plików
  */
-public class CSVCreator {
+public class CSVReader {
 
     public static final String MISSING_VALUE = "X";
 
     private static final String[] arr = new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
 
     public static void main(String[] args) {
-        long timeStart = System.nanoTime();
-        new CSVCreator().runAll();
-        long timeEnd = System.nanoTime();
-        long diff = (timeEnd - timeStart);
-        Utils.log("Time elapsed = " + diff + " ns = " + diff / 1000 + " ms");
+        new CSVReader().runAll();
     }
-
 
     public void runAll() {
         List<ExpertResponse> expertResponses = new ArrayList<>();
         DataImputationHelper helper = new DataImputationHelper();
+        //names of each csv files (cneverted from xls)
         String[] filenames = new String[]{
                 "dzial_1_1.csv",
-//                "dzial_2_1_.csv",
-//                "dzial_2_2_.csv",
-//                "dzial_2_3_.csv",
-//                "dzial_2_8_.csv",
-//                "dzial_2_9_.csv",
-//                "dzial_2_10_.csv",
-//                "dzial_2_11_.csv",
-//                "dzial_2_12_.csv",
-//                "dzial_2_13_.csv",
-//                "dzial_2_14_.csv",
+                "dzial_2_1_.csv",
+                "dzial_2_2_.csv",
+                "dzial_2_3_.csv",
+                "dzial_2_8_.csv",
+                "dzial_2_9_.csv",
+                "dzial_2_10_.csv",
+                "dzial_2_11_.csv",
+                "dzial_2_12_.csv",
+                "dzial_2_13_.csv",
+                "dzial_2_14_.csv",
         };
-
+        /**
+         * reads all  surveys, and each response from expert is added into list: expertResponses
+         * {@link ExpertResponse }structure is structure which represents single expert response
+         */
         for (String filename : filenames) {
             Utils.log("Processing  " + filename);
             appendExpertsResponses(filename, expertResponses);
@@ -53,7 +55,6 @@ public class CSVCreator {
         /**
          * HERE WE CREATED NOT NORMALIZED EXPERT RESPONSES
          */
-
         Set<Float> surveyIds = new HashSet<>();
         helper.appendSurveyIds(surveyIds);
         List<Float> surveyIds1 = new ArrayList<>();

@@ -1,7 +1,7 @@
 package pl.marczak.dataimputation;
 
-import static pl.marczak.dataimputation.CSVCreator.MISSING_VALUE;
-import static pl.marczak.dataimputation.CSVCreator.containsABCDEFGHI;
+import static pl.marczak.dataimputation.CSVReader.MISSING_VALUE;
+import static pl.marczak.dataimputation.CSVReader.containsABCDEFGHI;
 
 /**
  * @author Lukasz

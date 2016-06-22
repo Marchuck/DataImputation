@@ -15,8 +15,8 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.lang.System.err;
-import static pl.marczak.dataimputation.CSVCreator.containsMissingValues;
-import static pl.marczak.dataimputation.CSVCreator.isTheSame;
+import static pl.marczak.dataimputation.CSVReader.containsMissingValues;
+import static pl.marczak.dataimputation.CSVReader.isTheSame;
 import static pl.marczak.dataimputation.DataImputationHelper.createArgumentVector;
 import static pl.marczak.dataimputation.DataImputationHelper.wrapToArray;
 
@@ -72,18 +72,18 @@ public class DataImputation {
     private void printExperts() {
         appendExpertsResponses("ankiet5K.csv", expertResponses);
         Utils.log("Expert responses size: " + expertResponses.size());
-//        printExpertsWithNoMiss();
+
 
         final List<Float> missingExperts = expertsWithMissingValues();
 //        for (Float f : missingExperts) {
         Utils.log("Expert id" + 128);
-        List<ExpertResponse> res = CSVCreator.getExpertResponses(128f, expertResponses);
+        List<ExpertResponse> res = CSVReader.getExpertResponses(128f, expertResponses);
         Utils.log("size = " + res.size());
         for (ExpertResponse r : res) {
             Utils.log("->" + r.valuesOnly());
         }
         Utils.log("\n\n");
-//        }
+
     }
 
     private void anotherDataImputation() {
@@ -153,30 +153,6 @@ public class DataImputation {
                                 }
                             }
                         }
-//                        Observable.from(separated).map(new Func1<List<ExpertResponse>, Boolean>() {
-//                            @Override
-//                            public Boolean call(List<ExpertResponse> expertResponses) {
-//                                return saveResponses(expertResponses);
-//                            }
-//                        }).subscribeOn(Schedulers.trampoline()).subscribe(new Subscriber<Boolean>() {
-//                            @Override
-//                            public void onCompleted() {
-//                                Utils.log("onCompleted");
-//                                callback.call(expertResponses);
-//                            }
-//
-//                            @Override
-//                            public void onError(Throwable throwable) {
-//                                Utils.err(throwable.getMessage());
-//                                throwable.printStackTrace();
-//                            }
-//
-//                            @Override
-//                            public void onNext(Boolean aBoolean) {
-//                                Utils.log(aBoolean.toString());
-//                            }
-//                        });
-
                     }
                 });
             }
